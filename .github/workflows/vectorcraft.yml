@@ -1,0 +1,67 @@
+name: build-vectorcraft-ko
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone vectorcraft at latest release tag
+        run: |
+          TAG=$(curl -fsSL https://api.github.com/repos/storytold/vectorcraft/releases/latest | grep -oP '"tag_name": *"\K[^"]+')
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+          git clone --depth 1 --branch "$TAG" https://github.com/storytold/vectorcraft
+
+      - name: Clone craft-fonts
+        run: git clone --depth 1 https://github.com/storytold/craft-fonts
+
+      - name: Add Korean UI font (NanumGothic) to the web font list
+        run: |
+          cd vectorcraft
+          sed -i '/^startup | Noto Sans Georgian | Regular$/a startup | NanumGothic | Regular' crates/text/web-fonts.txt
+          grep -n "NanumGothic" crates/text/web-fonts.txt
+          grep -c "^startup" crates/text/web-fonts.txt
+
+      - name: Rust toolchain (stable + wasm32)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: vectorcraft
+
+      - name: Install trunk
+        run: |
+          curl -fsSL https://github.com/trunk-rs/trunk/releases/latest/download/trunk-x86_64-unknown-linux-gnu.tar.gz | tar -xzf - -C "$HOME/.cargo/bin"
+          trunk --version
+
+      - name: Build web (with craft-fonts)
+        run: |
+          cd vectorcraft/apps/vectorcraft-web
+          CRAFT_FONTS_DIR="$GITHUB_WORKSPACE/craft-fonts" trunk build --release
+          ls -la ../../dist/web | head
+          test -d ../../dist/web/fonts && du -sh ../../dist/web/fonts
+
+      - name: Zip
+        run: |
+          cd vectorcraft/dist/web
+          zip -qr "$GITHUB_WORKSPACE/vectorcraft-web-ko-$TAG.zip" .
+          ls -la "$GITHUB_WORKSPACE/vectorcraft-web-ko-$TAG.zip"
+
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "vectorcraft-ko-$TAG" --repo "$GITHUB_REPOSITORY" \
+            -t "VectorCraft web KO $TAG" \
+            -n "VectorCraft $TAG web build + NanumGothic startup font (Korean UI). Upstream: storytold/vectorcraft, MIT OR Apache-2.0. Font: SIL OFL 1.1." \
+            "vectorcraft-web-ko-$TAG.zip" || \
+          gh release upload "vectorcraft-ko-$TAG" --repo "$GITHUB_REPOSITORY" --clobber "vectorcraft-web-ko-$TAG.zip"
