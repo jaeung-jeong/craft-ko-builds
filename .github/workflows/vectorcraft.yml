@@ -28,6 +28,68 @@ jobs:
           grep -n "NanumGothic" crates/text/web-fonts.txt
           grep -c "^startup" crates/text/web-fonts.txt
 
+      - name: Register extra Korean document fonts in craft-fonts
+        run: |
+          cd craft-fonts
+          G="https://raw.githubusercontent.com/google/fonts/main/ofl"
+          add() { # dir file family style
+            mkdir -p "fonts/$1"
+            curl -fsSL -o "fonts/$1/$2" "$G/$1/$2"
+            [ -f "fonts/$1/OFL.txt" ] || curl -fsSL -o "fonts/$1/OFL.txt" "$G/$1/OFL.txt"
+            SHA=$(sha256sum "fonts/$1/$2" | cut -d' ' -f1)
+            echo "$3 | $4 | fonts/$1/$2 | Hang,Kore | OFL-1.1 | fonts/$1/OFL.txt | $SHA | $G/$1/$2" >> fonts/manifest.txt
+          }
+          add nanumgothic NanumGothic-Bold.ttf NanumGothic Bold
+          add nanumgothic NanumGothic-ExtraBold.ttf NanumGothic ExtraBold
+          add nanummyeongjo NanumMyeongjo-Regular.ttf NanumMyeongjo Regular
+          add nanummyeongjo NanumMyeongjo-Bold.ttf NanumMyeongjo Bold
+          add nanummyeongjo NanumMyeongjo-ExtraBold.ttf NanumMyeongjo ExtraBold
+          add gothica1 GothicA1-Regular.ttf "Gothic A1" Regular
+          add gothica1 GothicA1-Bold.ttf "Gothic A1" Bold
+          add gothica1 GothicA1-Black.ttf "Gothic A1" Black
+          add blackhansans BlackHanSans-Regular.ttf "Black Han Sans" Regular
+          add dohyeon DoHyeon-Regular.ttf "Do Hyeon" Regular
+          add jua Jua-Regular.ttf Jua Regular
+          add gowunbatang GowunBatang-Regular.ttf "Gowun Batang" Regular
+          add gowunbatang GowunBatang-Bold.ttf "Gowun Batang" Bold
+          add gowundodum GowunDodum-Regular.ttf "Gowun Dodum" Regular
+          add songmyung SongMyung-Regular.ttf "Song Myung" Regular
+          add nanumpenscript NanumPenScript-Regular.ttf "Nanum Pen Script" Regular
+          add nanumbrushscript NanumBrushScript-Regular.ttf "Nanum Brush Script" Regular
+          add gaegu Gaegu-Regular.ttf Gaegu Regular
+          add gaegu Gaegu-Bold.ttf Gaegu Bold
+          add gamjaflower GamjaFlower-Regular.ttf "Gamja Flower" Regular
+          add eastseadokdo EastSeaDokdo-Regular.ttf "East Sea Dokdo" Regular
+          tail -22 fonts/manifest.txt
+
+      - name: Add the fonts to the web fetch list
+        run: |
+          cd vectorcraft
+          cat >> crates/text/web-fonts.txt << 'LIST'
+background | NanumGothic | Bold
+background | NanumGothic | ExtraBold
+background | NanumMyeongjo | Regular
+background | NanumMyeongjo | Bold
+background | NanumMyeongjo | ExtraBold
+background | Gothic A1 | Regular
+background | Gothic A1 | Bold
+background | Gothic A1 | Black
+background | Black Han Sans | Regular
+background | Do Hyeon | Regular
+background | Jua | Regular
+background | Gowun Batang | Regular
+background | Gowun Batang | Bold
+background | Gowun Dodum | Regular
+background | Song Myung | Regular
+background | Nanum Pen Script | Regular
+background | Nanum Brush Script | Regular
+background | Gaegu | Regular
+background | Gaegu | Bold
+background | Gamja Flower | Regular
+background | East Sea Dokdo | Regular
+LIST
+          grep -c "^background" crates/text/web-fonts.txt
+
       - name: Rust toolchain (stable + wasm32)
         uses: dtolnay/rust-toolchain@stable
         with:
