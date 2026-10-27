@@ -65,29 +65,48 @@ jobs:
       - name: Add the fonts to the web fetch list
         run: |
           cd vectorcraft
-          cat >> crates/text/web-fonts.txt << 'LIST'
-background | NanumGothic | Bold
-background | NanumGothic | ExtraBold
-background | NanumMyeongjo | Regular
-background | NanumMyeongjo | Bold
-background | NanumMyeongjo | ExtraBold
-background | Gothic A1 | Regular
-background | Gothic A1 | Bold
-background | Gothic A1 | Black
-background | Black Han Sans | Regular
-background | Do Hyeon | Regular
-background | Jua | Regular
-background | Gowun Batang | Regular
-background | Gowun Batang | Bold
-background | Gowun Dodum | Regular
-background | Song Myung | Regular
-background | Nanum Pen Script | Regular
-background | Nanum Brush Script | Regular
-background | Gaegu | Regular
-background | Gaegu | Bold
-background | Gamja Flower | Regular
-background | East Sea Dokdo | Regular
-LIST
+          printf '%s
+' 'background | NanumGothic | Bold' >> crates/text/web-fonts.txt
+          printf '%s
+' 'background | NanumGothic | ExtraBold' >> crates/text/web-fonts.txt
+          printf '%s
+' 'background | NanumMyeongjo | Regular' >> crates/text/web-fonts.txt
+          printf '%s
+' 'background | NanumMyeongjo | Bold' >> crates/text/web-fonts.txt
+          printf '%s
+' 'background | NanumMyeongjo | ExtraBold' >> crates/text/web-fonts.txt
+          printf '%s
+' 'background | Gothic A1 | Regular' >> crates/text/web-fonts.txt
+          printf '%s
+' 'background | Gothic A1 | Bold' >> crates/text/web-fonts.txt
+          printf '%s
+' 'background | Gothic A1 | Black' >> crates/text/web-fonts.txt
+          printf '%s
+' 'background | Black Han Sans | Regular' >> crates/text/web-fonts.txt
+          printf '%s
+' 'background | Do Hyeon | Regular' >> crates/text/web-fonts.txt
+          printf '%s
+' 'background | Jua | Regular' >> crates/text/web-fonts.txt
+          printf '%s
+' 'background | Gowun Batang | Regular' >> crates/text/web-fonts.txt
+          printf '%s
+' 'background | Gowun Batang | Bold' >> crates/text/web-fonts.txt
+          printf '%s
+' 'background | Gowun Dodum | Regular' >> crates/text/web-fonts.txt
+          printf '%s
+' 'background | Song Myung | Regular' >> crates/text/web-fonts.txt
+          printf '%s
+' 'background | Nanum Pen Script | Regular' >> crates/text/web-fonts.txt
+          printf '%s
+' 'background | Nanum Brush Script | Regular' >> crates/text/web-fonts.txt
+          printf '%s
+' 'background | Gaegu | Regular' >> crates/text/web-fonts.txt
+          printf '%s
+' 'background | Gaegu | Bold' >> crates/text/web-fonts.txt
+          printf '%s
+' 'background | Gamja Flower | Regular' >> crates/text/web-fonts.txt
+          printf '%s
+' 'background | East Sea Dokdo | Regular' >> crates/text/web-fonts.txt
           grep -c "^background" crates/text/web-fonts.txt
 
       - name: Rust toolchain (stable + wasm32)
